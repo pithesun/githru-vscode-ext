@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import type { CSSProperties } from "react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import BounceLoader from "react-spinners/BounceLoader";
 
@@ -30,6 +30,7 @@ const TemporalFilter = () => {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<SVGSVGElement>(null);
+  const [resetActive, setResetActive] = useState<boolean>(false);
 
   // TODO - Need to Refactor for reducing # of sorting tries.
   const lineChartDataList: LineChartDatum[][] = useMemo(() => {
@@ -103,6 +104,7 @@ const TemporalFilter = () => {
         setFilteredRange(undefined);
         setFilteredData([...data]);
         setSelectedData([]);
+        setResetActive(false);
         return;
       }
 
@@ -110,6 +112,7 @@ const TemporalFilter = () => {
       const toDate = lineChartTimeFormatter(xScale.invert(selection[1]));
       setFilteredRange({ fromDate, toDate });
       setFilteredData(filterDataByDate({ data, fromDate, toDate }));
+      setResetActive(true);
       setSelectedData([]);
     };
 
@@ -137,6 +140,7 @@ const TemporalFilter = () => {
         loading={loading}
         cssOverride={loaderStyle}
       />
+      <div className="reset">{resetActive && <button>Reset Zoom</button>}</div>
       <div
         className="line-charts"
         ref={wrapperRef}
