@@ -30,6 +30,8 @@ const TemporalFilter = () => {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<SVGSVGElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
   const [resetActive, setResetActive] = useState<boolean>(false);
 
   // TODO - Need to Refactor for reducing # of sorting tries.
@@ -72,6 +74,7 @@ const TemporalFilter = () => {
     const axisHeight = 20;
     const chartHeight = (wrapperRef.current.getBoundingClientRect().height - axisHeight) / 2;
     const svgElement = ref.current;
+    const buttonElement = buttonRef.current;
 
     // CLOC
     const xScale = drawLineChart(
@@ -116,7 +119,7 @@ const TemporalFilter = () => {
       setSelectedData([]);
     };
 
-    drawBrush(svgElement, BRUSH_MARGIN, windowSize.width, chartHeight * 2, dateChangeHandler);
+    drawBrush(svgElement, buttonElement, BRUSH_MARGIN, windowSize.width, chartHeight * 2, dateChangeHandler);
 
     return () => {
       d3.select(svgElement).selectAll("g").remove();
@@ -140,7 +143,7 @@ const TemporalFilter = () => {
         loading={loading}
         cssOverride={loaderStyle}
       />
-      <div className="reset">{resetActive && <button>Reset Zoom</button>}</div>
+      <div className="reset">{resetActive && <button ref={buttonRef}>Reset Zoom</button>}</div>
       <div
         className="line-charts"
         ref={wrapperRef}

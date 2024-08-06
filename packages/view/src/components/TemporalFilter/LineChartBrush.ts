@@ -7,6 +7,7 @@ export type BrushXSelection = [number, number] | null;
 
 export const drawBrush = (
   refTarget: SVGSVGElement,
+  refButton: HTMLButtonElement | null,
   margin: Margin,
   chartWidth: number,
   chartHeight: number,
@@ -26,11 +27,14 @@ export const drawBrush = (
       [0, 0],
       [width - margin.left / 2, chartHeight - margin.bottom],
     ])
-    // .handleSize(5)
     .on("end", brushed);
 
-  svg
+  const brushGroup = svg
     .append("g")
     .call(brush)
     .attr("transform", `translate(${margin.left / 2}, 0)`);
+
+  refButton?.addEventListener("click", () => {
+    return brushGroup.call(brush.move, null);
+  });
 };
