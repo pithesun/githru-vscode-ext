@@ -143,7 +143,16 @@ const TemporalFilter = () => {
         loading={loading}
         cssOverride={loaderStyle}
       />
-      <div className="reset">{resetActive && <button ref={buttonRef}>Reset Zoom</button>}</div>
+      <div className="reset">
+        {resetActive && (
+          <button
+            className="reset-button"
+            ref={buttonRef}
+          >
+            Reset Zoom
+          </button>
+        )}
+      </div>
       <div
         className="line-charts"
         ref={wrapperRef}
