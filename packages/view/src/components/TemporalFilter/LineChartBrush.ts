@@ -1,13 +1,19 @@
 import * as d3 from "d3";
-import type { D3BrushEvent } from "d3";
+import type { D3BrushEvent, BrushBehavior, Selection } from "d3";
 
 import type { Margin } from "./LineChart";
 
 export type BrushXSelection = [number, number] | null;
+export type BrushXBehavior = BrushBehavior<unknown> | null;
+export type BrushGroupSelection = Selection<SVGGElement, unknown, null, undefined> | null;
+
+export type ResetBrushParam = {
+  brush: BrushBehavior<unknown> | null;
+  brushGroup: BrushGroupSelection;
+};
 
 export const drawBrush = (
   refTarget: SVGSVGElement,
-  refButton: HTMLButtonElement | null,
   margin: Margin,
   chartWidth: number,
   chartHeight: number,
@@ -34,7 +40,13 @@ export const drawBrush = (
     .call(brush)
     .attr("transform", `translate(${margin.left / 2}, 0)`);
 
-  refButton?.addEventListener("click", () => {
-    return brushGroup.call(brush.move, null);
-  });
+  return { brush, brushGroup };
+};
+
+export const resetBrush = ({ brush, brushGroup }: ResetBrushParam) => {
+  if (brush && brushGroup) {
+    brushGroup.call(brush.move, null);
+  } else {
+    console.warn("null 이슈");
+  }
 };

@@ -11,8 +11,8 @@ import "./TemporalFilter.scss";
 import drawLineChart from "./LineChart";
 import type { LineChartDatum } from "./LineChart";
 import { useWindowResize } from "./TemporalFilter.hook";
-import type { BrushXSelection } from "./LineChartBrush";
-import { drawBrush } from "./LineChartBrush";
+import type { BrushXSelection, BrushXBehavior } from "./LineChartBrush"; // BrushXBehavior, BrushGroupSelection
+import { drawBrush, resetBrush } from "./LineChartBrush"; //resetBrush
 import { BRUSH_MARGIN, TEMPORAL_FILTER_LINE_CHART_STYLES } from "./LineChart.const";
 
 const TemporalFilter = () => {
@@ -30,9 +30,10 @@ const TemporalFilter = () => {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const ref = useRef<SVGSVGElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const [resetActive, setResetActive] = useState<boolean>(false);
+  const brushGroupRef = useRef<SVGGElement | null>(null);
+  const brushRef = useRef<BrushXBehavior>(null);
 
   // TODO - Need to Refactor for reducing # of sorting tries.
   const lineChartDataList: LineChartDatum[][] = useMemo(() => {
@@ -65,6 +66,13 @@ const TemporalFilter = () => {
 
   const windowSize = useWindowResize();
 
+  const onClickResetButton = () => {
+    if (brushGroupRef.current && brushRef.current) {
+      // d3.select(brushGroupRef.current).call(brushRef.current?.move, null);
+      resetBrush({ brushGroup: d3.select(brushGroupRef.current), brush: brushRef.current });
+    }
+  };
+
   useEffect(() => {
     if (!wrapperRef.current || !ref.current) return undefined;
 
@@ -74,7 +82,6 @@ const TemporalFilter = () => {
     const axisHeight = 20;
     const chartHeight = (wrapperRef.current.getBoundingClientRect().height - axisHeight) / 2;
     const svgElement = ref.current;
-    const buttonElement = buttonRef.current;
 
     // CLOC
     const xScale = drawLineChart(
@@ -119,7 +126,16 @@ const TemporalFilter = () => {
       setSelectedData([]);
     };
 
-    drawBrush(svgElement, buttonElement, BRUSH_MARGIN, windowSize.width, chartHeight * 2, dateChangeHandler);
+    const { brush, brushGroup } = drawBrush(
+      svgElement,
+      BRUSH_MARGIN,
+      windowSize.width,
+      chartHeight * 2,
+      dateChangeHandler
+    );
+
+    brushGroupRef.current = brushGroup.node();
+    brushRef.current = brush;
 
     return () => {
       d3.select(svgElement).selectAll("g").remove();
@@ -147,7 +163,7 @@ const TemporalFilter = () => {
         {resetActive && (
           <button
             className="reset-button"
-            ref={buttonRef}
+            onClick={onClickResetButton}
           >
             Reset Zoom
           </button>
